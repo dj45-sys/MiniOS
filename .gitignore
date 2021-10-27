@@ -1,0 +1,10 @@
+# VSCODE Configs
+
+.vscode/
+
+# Compiled Files
+
+Kernel.bin
+Kernel.iso
+loader.o
+Kernel.o
