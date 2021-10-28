@@ -1,13 +1,15 @@
 # sudo apt-get install g++ binutils libc6-dev-i386
 # sudo apt-get install VirtualBox grub-legacy xorriso
 
-%.o: 
-	gcc -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -c Kernel.cpp -o Kernel.bin
+# %.o: 
+# 	gcc -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -c Kernel.cpp -o Kernel.bin
 
-%.o: %.s
-	as --32 -o $@ $<
+# %.o:
+# 	as --32 loader.s -o  loader.o
 
 Kernel.bin:
+	gcc -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -c Kernel.cpp -o Kernel.bin
+	as --32 loader.s -o  loader.o
 	ld -melf_i386 -T linker.ld -o loader.o kernel.bin
 
 Kernel.iso: Kernel.bin
@@ -23,11 +25,9 @@ Kernel.iso: Kernel.bin
 	echo '  boot'                            >> iso/boot/grub/grub.cfg
 	echo '}'                                 >> iso/boot/grub/grub.cfg
 	grub-mkrescue --output=Kernel.iso iso
-	rm -rf iso
 
 run: Kernel.iso
-	(killall VirtualBoxVM && sleep 1) || true
-	/usr/lib/virtualbox/VirtualBoxVM --comment "My Operating System" --startvm  &
+	qemu-system-x86_64 $<
 
 install: Kernel.bin
 	sudo cp $< /boot/Kernel.bin
